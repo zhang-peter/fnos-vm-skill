@@ -1,0 +1,12 @@
+#!/bin/sh
+# Standalone launcher for the fnos-vm skill.
+set -eu
+DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+if [ -n "${FNOS_VM_PYTHON:-}" ]; then
+  PY=$FNOS_VM_PYTHON
+elif command -v python3 >/dev/null 2>&1; then
+  PY=python3
+else
+  PY=python
+fi
+exec "$PY" "$DIR/fnos-vm.py" "$@"

@@ -1,0 +1,25 @@
+{
+  "name": "fnos-vm",
+  "version": "0.1.0",
+  "description": "使用 fnos-vm 管理飞牛 fnOS 的虚拟机：列表、详情、新建、开关机、重启、暂停/恢复、删除、快照、VNC 地址、宿主机能力探测，以及云镜像/cloud-init seed 准备。",
+  "entry": "SKILL.md",
+  "bin": {},
+  "reference": "reference/",
+  "entries": [],
+  "capabilities": [
+    "vm-lifecycle",
+    "vm-snapshots",
+    "vm-console",
+    "host-capability-probe",
+    "cloud-init-image-prep"
+  ],
+  "requires": {
+    "python": ">=3.9",
+    "network": "reachable fnOS VM API on port 5666",
+    "optional": [
+      "fnos-cli for image upload",
+      "Microsoft Edge/Chromium with CDP for login --from-cdp"
+    ]
+  },
+  "locale": "zh-CN"
+}
