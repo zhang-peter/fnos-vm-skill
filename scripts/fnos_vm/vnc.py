@@ -42,6 +42,8 @@ KEY_NAMES = {
     "ctrl": 0xFFE3,
     "control": 0xFFE3,
     "shift": 0xFFE1,
+    "capslock": 0xFFE5,
+    "caps_lock": 0xFFE5,
     "alt": 0xFFE9,
     "super": 0xFFEB,
     "space": 0x20,

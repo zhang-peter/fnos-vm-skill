@@ -7,8 +7,7 @@
 - `RfbClient.type_text` 原先对字母一律 `tap(char.lower())`，**大写字母被静默降级成小写**；`text:Ubuntu2604` 实际键入 `ubuntu2604`。重置密码时这会写入错误的大小写，且用同样的注入方式"验证"会得到假阳性（这次密码排障就踩了）。现在大写字母会按住 Shift 输入；非 ASCII 字母直接抛 `RfbError`，不再落到 `unknown key name`。
 - `_parse_key_sequence` 对 `text:`/`type:` 的载荷做了 `strip()`，**行尾空格被吞掉**：`text:echo ,key:ls` 实际输入 `echo`（没有空格），拼出来就是 `echols`。现在载荷逐字保留，只对前缀做判断。
 - 新增 `tests/test_vnc.py`（12 例）：键盘事件的 keysym 序列（小写/大写/混合大小写往返/Shift 符号/数字空格/非 ASCII/不支持字符），以及按键序列解析（首尾空格、大小写、混合序列、空 token）。测试总数 50 → 62。
-- 待验证：在 fnOS 的 VNC WebSocket 网桥上，客户端发出的 Shift 按下/抬起到 guest 是否生效尚无定论（一次 A/B 试验里 `text:echo AbC` 仍落成小写，但当时会话过期、无法复测）。客户端行为已符合 RFB 约定；若网桥确实吞掉修饰键，需要再评估 CapsLock 之类的替代路径。
-
+- **已实测确认的边界**：fnOS 的 VNC WebSocket 网桥会丢弃修饰键。`text:echo AbC` 在 guest 里得到 `abc`；换成大写 keysym（`key:A`）同样只出 `a`；`key:capslock` 包住也没用。因此 `--keys` 无法输入大写字母，密码类输入必须走 SSH（`chpasswd`）。客户端仍按 RFB 约定发送 Shift（换到标准 VNC 服务端即可生效），并新增 `capslock` 键名。见 `reference/troubleshooting.md`。
 文档补充（2026-11-11，真机验证 `ubuntu-26.04`）：
 
 - 记录 `/domain/modify` 的磁盘扩容用法：`--file` 传 `disks[]`（整体替换）并改 `capacityInBytes`，服务端实际执行 `qemu-img resize`，为真扩容而非只改元数据。见 `reference/api.md` §5.1、`reference/commands.md` 的 `modify`。

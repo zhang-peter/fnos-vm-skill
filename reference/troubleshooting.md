@@ -59,6 +59,17 @@ fnos-vm adopt <internal-name> --yes
 - `vnc --screenshot` / `--keys` 使用内置 RFB 客户端（None 认证、Raw 编码）；VNC 密码、Tight/ZRLE 等编码不支持。
 - 若 401，重新 login；若 404，确认 VM 存在且 internal name 正确。
 
+### `--keys 'text:...'` 打不出大写
+
+**已实测（2026-11-26，trim.vm 0.9.3 / QEMU）**：fnOS 的 VNC WebSocket 网桥会丢掉修饰键，`text:` 里的字母最终都落成小写。
+
+- 客户端现在会为大写字母发 `Shift` 按下/抬起（`RfbClient.type_text`），`key:capslock` 也支持，但网桥不生效：`text:echo AbC` 在 guest 里得到 `abc`。
+- 因此 **不要用 `--keys` 输入含大写字母的密码/路径**；需要大写就用别的通道：
+  - 已能 SSH 时用 `chpasswd`（`printf '%s\n' 'user:PassWord' | sudo chpasswd`）；
+  - 或在 guest 内用 `sed`/脚本；
+  - 只依赖小写的场景（GRUB 参数、`autoinstall ds=nocloud` 等）不受影响。
+- 不要试图用 `key:A`（大写 keysym）绕过：QEMU 同样映射成小写 `a`。
+
 ## 镜像/seed
 
 - `tar -tf seed.iso` 应看到 `user-data`、`meta-data`（大小写不敏感）。
