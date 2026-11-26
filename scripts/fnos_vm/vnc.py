@@ -341,7 +341,14 @@ class RfbClient:
             if char in SHIFT_CHARS:
                 self.combo("shift", SHIFT_CHARS[char])
             elif char.isalpha():
-                self.tap(char.lower())
+                # Uppercase letters must hold Shift; tapping the bare key would
+                # silently send the lowercase character (and corrupt passwords).
+                if not char.isascii():
+                    raise RfbError(f"cannot type character {char!r}")
+                if char.isupper():
+                    self.combo("shift", char.lower())
+                else:
+                    self.tap(char)
             elif char.isdigit():
                 self.tap(char)
             elif char == " ":

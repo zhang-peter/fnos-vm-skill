@@ -854,7 +854,10 @@ def _parse_key_sequence(spec: str) -> list[tuple[str, Any]]:
         if lower.startswith("sleep:"):
             actions.append(("sleep", float(token.split(":", 1)[1])))
         elif lower.startswith("text:") or lower.startswith("type:"):
-            actions.append(("text", token.split(":", 1)[1]))
+            # Keep the payload verbatim: stripping it would silently drop the
+            # leading/trailing spaces a keyboard macro needs ("echo " etc.).
+            _prefix, _sep, value = raw.lstrip().partition(":")
+            actions.append(("text", value))
         elif lower.startswith("combo:"):
             parts = token.split(":", 1)[1].replace("-", "+").split("+")
             actions.append(("combo", [part.strip().lower() for part in parts if part.strip()]))
